@@ -1,14 +1,15 @@
-//import { useState } from 'react'
+import { useState } from 'react'
 import Counter from './Counter.tsx'
 import Controller from './Controller.tsx'
 import './App.css'
 
 export default function App() {
+  const[isRunning, setIsRunning] = useState(false)
 
   return (
     <>
-      <Counter />
-      <Controller />
+      <Counter isRunning={isRunning}/>
+      <Controller isRunning={isRunning} onChangeTimer={setIsRunning}/>
     </>
   )
 }
