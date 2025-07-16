@@ -1,33 +1,27 @@
-//import { useState } from 'react'
-
 interface ControllerProps {
     isRunning: boolean,
-    onChangeTimer: (isRunning: boolean) => void
+    onSubmit: () => void,
+    onClickStop: () => void
 }
 
-export default function Controller({isRunning, onChangeTimer}: ControllerProps) {
-    
-
-    const handleStart = () => {
-        {onChangeTimer(true)}
-    }
-
-    const handleStop = () => {
-        {onChangeTimer(false)}
-    }
+export default function Controller({
+    isRunning,
+    onSubmit,
+    onClickStop
+}: ControllerProps) {
 
     const showStartButton = () => (
         <>
             <button
                 type='submit'
                 form='timer-form'
-                onClick={() => handleStart()}>Start</button>
+                onClick={() => onSubmit()}>Start</button>
         </>
     )
 
     const showStopButton = () => (
         <>
-            <button onClick={() => handleStop()}>Stop</button>
+            <button onClick={() => onClickStop()}>Stop</button>
         </>
     )
 
