@@ -1,57 +1,60 @@
-import Counter from './Counter.tsx'
-import Controller from './Controller.tsx'
+import { useState, useEffect, useRef } from 'react'
 import './App.css'
-import { useState } from "react";
 
-export default function App() {
-  const [inputMinutes, setInputMinutes] = useState('')
-  const [InputSeconds, setInputSeconds] = useState('')
-  const [miliseconds, setMiliseconds] = useState(0)
+function App() {
   const [isRunning, setIsRunning] = useState(false)
+  const [minutes, setMinutes] = useState(0)
+  const [seconds, setSeconds] = useState(0)
+  const [miliseconds, setMiliseconds] = useState(0)
+  const intervalRef = useRef(0)
 
-  
+  useEffect(() => {
+    if(!isRunning) return
 
-  const handleInputMinutes = (inputMinutes: string) => {
-    setInputMinutes(inputMinutes)
-  }
+    intervalRef.current = setInterval(() => {
+      setMiliseconds(prev => Math.max(prev - 100, 0))
+    }, 100);
 
-  const handleInputSeconds = (inputSeconds: string) => {
-    setInputSeconds(inputSeconds)
-  }
+    return () => clearInterval(intervalRef.current)
+  }, [isRunning])
 
-  const handleStop = () => {
-    setIsRunning(false)
-  }
-
-  const handleSubmit = () => {
-    if(!/^\d+$/.test(inputMinutes) || !/^\d+$/.test(InputSeconds)) {
-      alert('Invalid inputs')
-      setInputSeconds('')
-      setInputMinutes('')
-      return
+  useEffect(() => {
+    if(miliseconds === 0 && isRunning){
+      clearInterval(intervalRef.current)
+      setMiliseconds(0)
+      alert('done')
+      setIsRunning(false)
     }
+  }, [isRunning, miliseconds])
 
-    setMiliseconds(((+inputMinutes * 60) + +InputSeconds) * 1000)
-
-    setIsRunning(true)
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setMiliseconds((minutes * 60 + seconds) * 1000)
   }
+
+  const displayMinutes = () => (
+    String(Math.floor(miliseconds / (60 * 1000))).padStart(2, '0')
+  )
+  const displaySeconds = () => (
+    String(Math.floor(miliseconds % (60 * 1000) / 1000)).padStart(2, '0')
+  )
 
   return (
     <>
-      <Counter
-        isRunning={isRunning}
-        onInputMinutes={handleInputMinutes}
-        onInputSeconds={handleInputSeconds}
-        minutes={inputMinutes}
-        seconds={InputSeconds}
-        setMiliseconds={setMiliseconds}
-        miliseconds={miliseconds}
-      />
-      <Controller
-        isRunning={isRunning}
-        onSubmit={handleSubmit}
-        onClickStop={handleStop}
-      />
+      <form onSubmit={handleSubmit}>
+        <input type="number" value={minutes} onChange={(e) => setMinutes(Number(e.target.value))} />
+        <input type="number" value={seconds} onChange={(e) => setSeconds(Number(e.target.value))} />
+        <button type="submit">{isRunning ? 'Reset' : 'Timer Set'}</button>
+      </form>
+      <p>{displayMinutes()}:{displaySeconds()}</p>
+      {isRunning ? 
+        <button onClick={() => setIsRunning(false)}>Stop</button>
+        :
+        <button onClick={() => setIsRunning(true)}>Start</button>
+      }
+      
     </>
   )
 }
+
+export default App
